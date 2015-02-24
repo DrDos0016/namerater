@@ -1,0 +1,427 @@
+/* Fonts */
+@font-face {
+  font-family: 'Homenaje';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Homenaje'), local('Homenaje-Regular'), url(/assets/fonts/homenaje.woff2) format('woff2'), url(/assets/fonts/homenaje.woff) format('woff');
+}
+/* end fonts */
+
+a
+{
+    color:#6ABDCD;
+    text-decoration:none;
+}
+
+a:hover
+{
+    color:#FFF;
+    cursor:pointer;
+}
+
+body
+{
+    font-family:sans-serif;
+    background-color:#6E7FAB;
+    color:#CED5E8;
+}
+
+h1, h2, h3
+{
+    font-family:"Homenaje", sans-serif;
+    margin:0;
+    color:#6ABDCD;
+}
+
+
+
+div[name=pages]
+{
+    margin:auto;
+    text-align:center;
+    width:50%;
+    margin-bottom:16px;
+}
+
+.jsLink:hover
+{
+    cursor:pointer;
+}
+
+#header
+{
+    max-width:1280px;
+    margin:auto;
+}
+
+#header a
+{
+    font-family:"Homenaje", sans-seriff;
+}
+
+#header ul
+{
+    margin:0;
+    padding:0;
+    text-align:center;
+}
+
+#header #navigation
+{
+    float:left;
+}
+
+#header #user_info
+{
+    float:right;
+}
+
+#header div#user_info
+{
+    display:inline-block;
+    zoom: 1;
+    *display: inline;
+    border:1px solid #5E4B94;
+    border-radius:12px;
+    background-color:#5E4B94;
+    background-position: top center;
+    width:272px;
+    height:88px;
+    margin-bottom:16px;
+    padding:4px 8px 4px 8px;
+}
+
+#header ul li
+{
+    display:inline-block;
+    zoom: 1;
+    *display: inline;
+    border:1px solid #5E4B94;
+    border-radius:12px;
+    background-color:#5E4B94;
+    background-position: top center;
+    font-size:18pt;
+    text-align:center;
+    width:96px;
+    height:96px;
+    margin-bottom:16px;
+}
+
+.hidden
+{
+    visibility:hidden;
+}
+
+#content
+{
+    margin:auto;
+    margin-bottom:16px;
+    min-width:784px;
+    max-width:1264px;
+    border:2px solid #5E4B94;
+    border-radius:16px;
+    background-color:#5E4B94;
+    padding:8px;
+}
+
+.gas
+{
+    text-align:center;
+    margin-bottom:16px;
+    display:none;
+}
+
+#footer
+{
+    text-align:center;
+    border:2px solid #5E4B94;
+    border-radius:16px;
+    background-color:#5E4B94;
+    width:200px;
+    margin:auto;
+}
+
+.page
+{
+    display:inline-block;
+    zoom: 1;
+    *display: inline;
+    width:96px;
+    border:1px solid #5E4B94;
+    border-radius:12px;
+    background-color:#5E4B94;
+    padding:4px 8px 4px 8px;
+    font-size:18pt;
+    font-family:"Homenaje", sans-serif;
+}
+
+.page.sel
+{
+    color:#FFF;
+}
+
+.spacer
+{
+    display:inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+.score, .comments, .author
+{
+    font-weight:bold;
+}
+
+.submission
+{
+    text-align:center;
+    display:inline-block;
+    vertical-align:top;
+    width:192px;
+    height:280px;
+    margin-bottom:16px;
+    border:1px solid #6ABDCD;
+    border-radius:16px;
+    background-color:#412E7A;
+}
+
+.submission.condensed
+{
+    height:auto;
+}
+
+.submission .author
+{
+    height:30px;
+}
+
+.submission .core
+{
+    height:181px;
+}
+
+.submission .buttons
+{
+    font-size:10pt;
+    margin-top:10px;
+}
+
+.submission .buttons .col
+{
+    margin:0px 25px 0px 25px;
+    width:32px;
+}
+
+.submission .buttons .col a
+{
+    text-decoration:none;
+}
+
+.submission .buttons img
+{
+    margin:-2px;
+}
+
+.submission .name
+{
+    font-family:"Homenaje", sans-seriff;
+    letter-spacing:0.05em;
+    overflow:auto;
+    font-size:14pt;
+}
+
+.submission .score
+{
+    width:48%;
+    text-align:center;
+    float:left;
+}
+
+.sprite
+{
+    width:128px;
+    height:128px;
+}
+
+.sprite img
+{
+    width:128px;
+    height:128px;
+}
+
+.sprite.small
+{
+    width:90px;
+    height:90px;
+}
+
+.sprite.small img
+{
+    width:90px;
+    height:90px;
+}
+
+.submission .comments
+{
+    width:48%;
+    text-align:center;
+    float:right;
+}
+
+select
+{
+    border:1px solid #6ABDCD;
+    background-color:#5E4B94;
+    color:#CED5E8;
+    width:154px;
+}
+
+input
+{
+    border:1px solid #6ABDCD;
+    background-color:#5E4B94;
+    color:#CED5E8;
+    width:150px;
+}
+
+input[type=button], input[type=submit]
+{
+    width:154px;
+    background-color: #6E7FAB;
+    font-weight:bold;
+}
+
+/* View Page */
+.captures
+{
+    float:right;
+    font-size:20pt;
+    padding-right:24px;
+}
+
+.captures img
+{
+    position:relative;
+    top:6px;
+}
+
+.container
+{
+    width:70%;
+    margin:auto;
+}
+
+.container .left
+{
+    float:left;
+}
+
+.container input
+{
+    float:right;
+}
+
+#comments textarea, #report textarea
+{
+    width:100%;
+    margin:auto auto 4px auto;
+    border:1px solid #6ABDCD;
+    background-color:#5E4B94;
+    color:#CED5E8;
+}
+
+#comment_list
+{
+    margin-top:8px;
+    overflow:auto;
+    width:100%;
+    height:330px;
+}
+
+#comment_list p
+{
+    width:90%;
+    margin:auto;
+}
+
+.icon
+{
+    width:40px;
+    height:32px;
+    margin-right:4px;
+}
+
+#details, #report, #admin
+{
+    display:none;
+}
+
+#details
+{
+    height:400px;
+    overflow:auto;
+}
+
+#details table
+{
+    width:90%;
+}
+
+#details th
+{
+    text-align:right;
+    width:25%;
+}
+
+.jsLink.sel
+{
+    font-weight:bold;
+    color:#FFF;
+    cursor:default;
+}
+
+.col h1
+{
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+}
+
+select[name=type], input[name=report]
+{
+    margin-bottom:8px;
+}
+/* End View Page */
+
+.error_image
+{
+    width:100%;
+    margin:auto;
+    text-align:center;
+}
+
+.view_area
+{
+    width:62%;
+    text-align:center;
+}
+
+.info
+{
+    width:36%;
+    border:1px solid #6ABDCD;
+    background-color:#412E7A;
+    padding:4px 0px 0px 4px;
+    min-height:480px;
+}
+
+.break
+{
+    clear:both;
+    border-top:1px solid #6ABDCD;
+    width:80%;
+    margin:auto;
+    margin-top:8px;
+    text-align:center;
+    height:8px;
+}

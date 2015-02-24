@@ -1,0 +1,13 @@
+<div name="pages">
+{% if method == "top" %}
+    <a href="/top/recent"><div class="page{% if options == 'recent'%} sel{% endif %}">Recent</div></a>
+    <a href="/top/all"><div class="page{% if options == 'all'%} sel{% endif %}">All Time</div></a>
+    <div class="spacer" style="width:96px"></div>
+{% endif %}
+{% if method != "random" %}
+    <a href="{{page_link}}/{{prev}}{{qs}}"><div class="page">Newer</div></a>
+    <a href="{{page_link}}/{{next}}{{qs}}"><div class="page">Older</div></a>
+{% else %}
+    <a href="/random"><div class="page">Random</div></a>
+{% endif %}
+</div>

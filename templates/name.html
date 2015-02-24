@@ -1,0 +1,501 @@
+{% extends "main.html" %}
+
+{% block css %}
+<style>
+#submissions
+{
+    text-align:center;
+}
+
+#settings
+{
+    text-align:center;
+}
+
+#settings .letters
+{
+    font-family:monospace;
+    letter-spacing:0.3em;
+    text-align:center;
+    margin:2px auto;
+    /*width:200px;*/
+    border-bottom:1px solid #6ABDCD;
+}
+
+#settings ul
+{
+    position:relative;
+}
+
+input[name=search]
+{
+    width:130px;
+}
+
+#pokemon_list, #data, #sprite_preview, #finally
+{
+    width:19%;
+    height:256px;
+    border:1px solid #412E7A;
+    background-color:#412E7A;
+    text-align:center;
+    border-radius:8px;
+}
+
+#pokemon_list ul
+{
+    height:146px;
+    overflow-y:scroll;
+    margin:0;
+    margin-right:8px;
+    padding:8px;
+    list-style-type:none;
+}
+
+#pokemon_list ul li
+{
+    cursor:pointer;
+    text-align:left;
+    padding-left:16px;
+    font-size:10pt;
+}
+
+#pokemon_list ul li:hover
+{
+    cursor:pointer;
+    background-color:#5E4B94;
+}
+
+#pokemon_list ul li.selected
+{
+    background-color:#AB9FCF;
+}
+
+#pokemon_list ul li.selected:hover
+{
+    background-color:#5E4B94;
+}
+
+.sprite_options
+{
+    width:150px;
+    margin:auto;
+}
+
+.sprite_options label
+{
+    display:inline-block;
+    *display:inline;
+    zoom:1;
+    text-align:left;
+    width:100%;
+}
+
+.sprite_options input[type=checkbox]
+{
+    width:auto;
+    float:right;
+}
+
+.sprite_options input[type=checkbox][disabled]
+{
+    visibility:hidden;
+}
+
+#sprite_preview
+{
+    width:39%;
+    height:256px;
+    border:1px solid #412E7A;
+}
+
+#sprite_list
+{
+    overflow-y:scroll;
+    height:222px;
+    margin-right:8px;
+}
+
+.sprite_choice
+{
+    border-radius:8px;
+    width:140px;
+    height:160px;
+    padding:4px;
+    font-size:10pt;
+}
+
+.sprite_choice:hover
+{
+    cursor:pointer;
+    background-color:#5E4B94;
+}
+.sprite_choice.selected
+{
+    background-color:#AB9FCF;
+}
+
+.sprite_choice.selected:hover
+{
+    background-color:#5E4B94;
+}
+
+.submission
+{
+    height:160px;
+}
+
+div[name=team_name]
+{
+    visibility:hidden;
+}
+
+#clear_search
+{
+    position:relative;
+    top:3px;
+    cursor:pointer;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="/assets/scripts/jquery.scrollTo.min.js"></script>
+<script>
+var letter = "";
+var number = 0;
+var tileset = "x-y";
+var form = "";
+var name = "";
+var keywords = "";
+var submit_data = {"submissions":[], "set_name":"", "keywords":""};
+var sprites = [
+    {% for sprite in sprites %}
+        {"name":"{{sprite.name}}", "directory":"{{sprite.directory}}", "max_number":{{sprite.max_number}}},
+    {% endfor %}
+];
+
+$(document).ready(function (){
+    $("input[name=search]").keyup(function (e){
+        term = $(this).val().trim().toLowerCase();
+        len = term.length;
+        if (! term)
+        {
+            $("li[name=pokemon]").show();
+            return false;
+        }
+        
+        $("li[name=pokemon]").each(function (){
+            val = $(this).text().toLowerCase();
+            if (val.substr(0,len) != term)
+                $(this).hide();
+            else
+                $(this).show();
+        });
+    });
+    
+    $("#clear_search").click(function (){
+        $("input[name=search]").val("").trigger("keyup");
+    });
+    
+    
+    $("a[name=letter]").click(function (){
+        letter = $(this).text();
+        $("input[name=search]").val("").trigger("keyup");
+        $("#pokemon_list ul").scrollTo($("li[name=pokemon][data-letter="+letter+"]:first"));
+    });
+    
+    $("li[name=pokemon]").click(function (){
+        $("li[name=pokemon].selected").removeClass("selected");
+        $(this).addClass("selected");
+        reset_info();
+        // Select pokemon
+        number = $(this).data("number");
+        load_sprites();
+        $("#submissions .submission:last-child .name").html("-");
+        $(".sprite_choice[data-index=0]").click();
+        
+    });
+    
+    $("input[name=name]").keyup(function (){
+        $("#submissions .submission:last-child .name").html($(this).val());
+    });
+    
+    $("#data input[type=checkbox]").change(function (){
+        render_image();
+    });
+    
+    $("select[name=form]").change(function (){
+        form = $(this).val();
+        has_back = $(this).find("option[value="+form+"]").data("has_back");
+        has_shiny = $(this).find("option[value="+form+"]").data("has_shiny");
+        has_female = $(this).find("option[value="+form+"]").data("has_female");
+        
+        if (has_back)
+            $("input[name=back]").removeProp("disabled");
+        else
+            $("input[name=back]").attr("disabled", "disabled");
+            
+        if (has_shiny)
+            $("input[name=shiny]").removeProp("disabled");
+        else
+            $("input[name=shiny]").attr("disabled", "disabled");
+            
+        if (has_female)
+            $("input[name=female]").removeProp("disabled");
+        else
+            $("input[name=female]").attr("disabled", "disabled");
+        
+        render_image();
+    });
+    
+    $("#add_another").click(function (){
+        confirmed = confirm();
+        if ((! confirmed) || submit_data["submissions"].length >= 6)
+            return false;
+            
+        $("#submissions").append('<div class="submission">\
+                <div class="sprite col"><img alt=""></div><br>\
+                <div class="name"></div>\
+            </div>');
+            
+        $("span[name=team_size]").html(submit_data["submissions"].length + 1);
+        $("div[name=team_name]").css("visibility", "visible");
+        $(".sprite_choice.selected").click();
+    });
+    
+    $("#name_form").submit(function (e){
+        if (! submit_form())
+        {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    $("input[name=search]").val("");
+});
+
+function reset_info()
+{
+    $("input[name=name]").val("");
+    $("input[name=back]").removeAttr("checked");
+    $("input[name=shiny]").removeAttr("checked");
+    $("input[name=female]").removeAttr("checked");
+    $("input[name=back]").attr("disabled", "disabled");
+    $("input[name=shiny]").attr("disabled", "disabled");
+    $("input[name=female]").attr("disabled", "disabled");
+    $("select[name=form]").html("<option value=''>&mdash;&mdash;</option>");
+    $("select[name=form]").attr("disabled", "disabled");
+}
+
+function render_image()
+{
+    url ="/assets/pokemon/"+tileset+"/";
+    form = "";
+    if (! $("input[name=back]").prop("disabled") && $("input[name=back]").prop("checked"))
+        url += "back/";
+    if (! $("input[name=shiny]").prop("disabled") && $("input[name=shiny]").prop("checked"))
+        url += "shiny/";
+    if (! $("input[name=female]").prop("disabled") && $("input[name=female]").prop("checked"))
+        url += "female/";
+    if (! $("select[name=form]").prop("disabled") && $("select[name=form]").val())
+        form = "-"+$("select[name=form]").val();
+        
+    url += number + form + ".png";
+    $("#submissions .submission:last-child img").attr("src", url);   
+}
+
+function load_sprites()
+{
+    output = ""
+    count = 0;
+    for (var x=0; x < sprites.length; x++)
+    {
+        if (sprites[x].max_number >= number || (number == 386 && sprites[x].directory == "firered-leafgreen")) // Deoxys needs exception for FR/LG
+        {
+            output += '<div class="sprite_choice col" data-index="'+x+'"><img class="sprite" src="/assets/pokemon/'+sprites[x].directory+'/'+number+'.png"><br>'+sprites[x].name+'</div>';
+            count++;
+        }
+    }
+    
+    while (count % 3 != 0)
+    {
+        output += '<div class="sprite_choice col hidden"></div>';
+        count++;
+    }
+    
+    $("#sprite_list").html(output);
+    $("#sprite_list").scrollTop(0);
+    bind_sprites();
+}
+
+function bind_sprites()
+{
+    $(".sprite_choice").click(function (){
+        index = $(this).data("index");
+        tileset = sprites[index]["directory"];
+        
+        $(".sprite_choice.selected").removeClass("selected");
+        $(this).addClass("selected");
+        pull_info();
+    });
+}
+
+
+function pull_info()
+{
+    ajax_url = '/ajax/details?tileset='+tileset+'&species='+number;
+    $.ajax({
+        url: ajax_url,
+        success: function(data) {
+            data = JSON.parse(data);
+            
+            if (data.length > 1)
+            {
+                output = "";
+                for (var x=0; x < data.length; x++)
+                {
+                    output += '<option value="'+data[x]["form"]+'" data-has_back="'+data[x]["has_back"]+'" data-has_shiny="'+data[x]["has_shiny"]+'" data-has_female="'+data[x]["has_female"]+'">'+data[x]["form_title"]+'</option>\n';
+                }
+                $("select[name=form]").html(output);
+                $("select[name=form]").removeProp("disabled");
+                $("select[name=form]").trigger("change");
+            }
+            else
+            {
+                output = '<option value="" data-has_back="'+data[0]["has_back"]+'" data-has_shiny="'+data[0]["has_shiny"]+'" data-has_female="'+data[0]["has_female"]+'">&mdash;&mdash;</option>\n';
+                $("select[name=form]").html(output);
+                $("select[name=form]").attr("disabled", "disabled");
+                $("select[name=form]").trigger("change");
+            }
+        }
+    });
+    
+    return true;
+}
+
+function submit_form()
+{    
+    confirmed = confirm();   
+    if (! confirmed)
+    {
+        return false;
+    }
+    
+    if (submit_data["submissions"].length > 6)
+    {
+        return false;
+    }
+    
+    if (submit_data["submissions"].length > 1)
+        submit_data["set_name"] = $("input[name=team]").val();
+    
+    submit_data["keywords"] = $("input[name=keywords]").val().split("/");
+    data = JSON.stringify(submit_data);
+    $("input[name=data]").val(data);
+    return true;
+}
+
+function confirm()
+{
+    if (submit_data["submissions"].length >= 6)
+        return false;
+    var submission = {};
+        
+    submission["name"]      = $(".submission:last-child").children(".name").html();
+    submission["species"]   = number;
+    submission["back"]      = false;
+    submission["shiny"]     = false;
+    submission["female"]    = false;
+    submission["form"]      = "";
+    if (submission["name"] == "" || submission["species"] == 0 || submission["name"] == "-")
+        return false;
+    
+    if (! $("input[name=back]").prop("disabled") && $("input[name=back]").prop("checked"))
+        submission["back"] = true;
+    if (! $("input[name=shiny]").prop("disabled") && $("input[name=shiny]").prop("checked"))
+        submission["shiny"] = true;
+    if (! $("input[name=female]").prop("disabled") && $("input[name=female]").prop("checked"))
+        submission["female"] = true;
+    if (! $("select[name=form]").prop("disabled") && $("select[name=form]").val())
+        submission["form"] = $("select[name=form]").val();
+    submission["sprite"]    = tileset;
+    submit_data["submissions"].push(submission);
+    //console.log(submission);
+    return true;
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content">
+<h1>Your Submission</h1>
+<div id="submissions">
+    <div class="submission">
+        <div class="sprite col"><img alt=""></div><br>
+        <div class="name"></div>
+    </div>
+</div>
+
+<div id="settings">
+    <div class="col" id="pokemon_list">
+    <h2>Pokémon</h2>
+    <input name="search" placeholder="Search" value=""> <img src="/assets/images/clear.png" alt="Clear" id="clear_search">
+    <div class="letters">
+    <a name="letter">A</a><a name="letter">B</a><a name="letter">C</a><a name="letter">D</a><a name="letter">E</a><a name="letter">F</a><a name="letter">G</a><a name="letter">H</a><a name="letter">I</a><a name="letter">J</a><a name="letter">K</a><a name="letter">L</a><a name="letter">M</a>
+    <br><a name="letter">N</a><a name="letter">O</a><a name="letter">P</a><a name="letter">Q</a><a name="letter">R</a><a name="letter">S</a><a name="letter">T</a><a name="letter">U</a><a name="letter">V</a><a name="letter">W</a><a name="letter">X</a><a name="letter">Y</a><a name="letter">Z</a>
+    </div>
+
+    <ul>
+    {% for poke in pokemon %}
+        <li name="pokemon" data-number="{{poke.1}}" data-letter="{{poke.0|slice:':1'}}">{{poke.0}}</li>
+    {% endfor %}
+    </ul>
+    </div>
+
+    <div class="col" id="sprite_preview">
+    <h2>Sprite</h2>
+    <div id="sprite_list">
+    </div>
+    </div>
+
+    <div class="col" id="data">
+        <h2>Information</h2>
+        <label>Nickname</label><br><input name="name" maxlength="12">
+        <br>
+        <h3>Details</h3>
+        <div class="sprite_options">
+            <label>Back<input name="back" type="checkbox" disabled></label><br>
+            <label>Shiny<input name="shiny" type="checkbox" disabled></label><br>
+            <label>Female<input name="female" type="checkbox" disabled></label><br>
+        </div>
+        <label>Form</label><br>
+        <select name="form" disabled>
+            <option value="">&mdash;&mdash;</option>
+        </select><br>
+    </div>
+
+    <div class="col" id="finally">
+        <h2>Finalize</h2>
+        Keywords<br>
+        <input name="keywords" value="" placeholder="Use commas for multiple."><br>
+        <br>
+        Create a Team (<span name="team_size">1</span>/6):<br>
+        <input id="add_another" type="button" value="Nickname Another"><br>
+        <br>
+        <div name="team_name">
+            Team Name:<br>
+            <input name="team" value=""><br>
+        </div>
+        <br>
+        <form method="POST" action="/name/submit" id="name_form" name="name_form">
+            {% csrf_token %}
+            <input id="submit" type="submit" value="Submit!"><br>
+            <input name="data" type="hidden" value="">
+        </form>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}

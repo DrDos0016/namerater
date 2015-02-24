@@ -1,0 +1,37 @@
+<div class="submission{% if method == 'view' %} condensed{% endif %}">
+    {% if submission.id %}
+    {% if method != "view" %}
+    <div class="author">{% if submission.meta.user %}<a href="/profile/{{submission.meta.user.key}}/{{submission.meta.user.name|slugify}}">{{submission.meta.user.name}}</a>{% else %}Anonymous{% endif %}</div>
+    <div class="score col">Captures<br><span name="score-{{submission.key}}">{{submission.meta.score|default:0}}</span></div>
+    <div class="comments col">Comments<br>{{submission.meta.comments|default:0}}</div>
+    {% endif %}
+    <div class="core">
+        <div class="sprite col{%if submission.set_head%} small{%endif%}">
+            {% if method != "view" %}<a href="/view/{{submission.key}}">{% endif %}
+            <img src="/assets/pokemon/{{submission.sprite}}/{% if submission.back %}back/{% endif %}{% if submission.shiny %}shiny/{% endif %}{% if submission.female %}female/{% endif %}{{submission.species}}{% if submission.form %}-{{submission.form}}{% endif %}.png" alt="{{submission.species_name}}" title="{{submission.species_name}}">
+            {% if method != "view" %}</a>{% endif %}
+        </div><br>
+        <div class="name">{{submission.name}}</div>
+    </div>
+    {% if votable %}
+    <div class="buttons">
+    <div class="col">
+        {% if not submission.set_head %}
+        <a name="vote" data-key="{{submission.key}}" class="jsLink">
+            <img src="/assets/images/pokeball.png">
+            Catch
+        </a>
+        {% else %}
+        &nbsp;
+        {% endif %}
+    </div>
+    <div class="col">
+        <a href="/view/{{submission.key}}">            
+            <img src="/assets/images/pokedex.png"><br>
+            View
+        </a>
+    </div>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>

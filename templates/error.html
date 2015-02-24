@@ -1,0 +1,9 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div id="content">
+<h1>An Error Has Occurred</h1>
+<div class="error_image"><img src="/assets/images/errors/{{img}}"></div>
+<p>{{error|safe}}</p>
+</div>
+{% endblock %}

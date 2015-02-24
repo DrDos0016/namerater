@@ -1,0 +1,23 @@
+{% extends "main.html" %}
+
+{% block scripts %}
+<script src="/assets/scripts/vote.js"></script>
+{% endblock %}
+
+{% block pages-top %}
+{% include "modules/pages.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="content" class="c">
+    {% for submission in submissions %}
+        {% include "modules/submission.html" %}
+    {% empty %}
+        No results found!
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block pages-bottom %}
+{% include "modules/pages.html" %}
+{% endblock %}

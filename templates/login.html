@@ -1,0 +1,108 @@
+{% extends "main.html" %}
+
+{% block css %}
+<style>
+.captcha_frame
+{
+    margin-top:190px;
+}
+
+form, #captcha
+{
+    width:480px;
+    margin:auto;
+    border: 1px solid #412E7A;
+    background-color: #412E7A;
+    border-radius: 8px;
+    text-align:center;
+}
+
+label
+{
+    display:inline-block;
+    zoom:1;
+    display:inline*;
+    margin-top:16px;
+    width:90%;
+    height:24px;
+    text-align:left;
+}
+
+label input
+{
+    float:right;
+}
+
+.sub
+{
+    font-size:8pt;
+    text-align:left;
+    margin-left:16px;
+}
+
+#why
+{
+    width:480px;
+}
+
+#why li
+{
+    text-align:left;
+    margin-bottom:8px;
+}
+
+#captcha
+{
+    float:right;
+    width:auto;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content" class="c">
+    <div class="col" id="why">
+    <h1>Why Sign Up?</h1>
+    <ul>
+        <li>Get credit for your names</li>
+        <li>Post up to 6 submissions per day, and more as your submissions gain points</li>
+        <li>Comment on submissions</li>
+        <li>Report inappropriate submissions</li>
+    </ul>
+    </div>
+    
+    <div class="col">
+        <form method="POST">
+        {% csrf_token %}
+        <input name="action" type="hidden" value="login">
+        &mdash; Log In to Your Account &mdash;
+        <label>Username: <input name="username" maxlength="20"><br>
+        <span class="sub">20 Characters Maximum.</span>
+        </label><br>
+        
+        <label>Password: <input name="password" type="password" maxlength="256"><br>
+        <span class="sub">Not stored in plaintext!</span>
+        </label><br>
+        
+        <label><a href="#">Forgot Username/Password</a> <input name="action" type="submit" value="Login"><br>
+        </label><br>
+        
+        &mdash; Register an Account &mdash;
+        
+        <label>Email: <input name="email" maxlength="60"><br>
+        <span class="sub">For password recovery</span>
+        </label><br>
+        
+        <label>Who's That Pokémon?: <input name="captcha_time" type="hidden" value="{{captcha_time}}"><input name="captcha" maxlength="20"><br>
+        <span class="sub">Prove you aren't a Zoroark.</span>
+        </label><br>
+        
+        <label><input name="action" type="submit" value="Sign Up"><br>
+        </label><br>
+        </form>
+    </div>
+    <div class="col" class="captcha_frame">
+        <div id="captcha">#{{captcha_num}}<br><img src="/assets/pokemon/x-y/{{captcha_num}}.png"></div>
+    </div>
+</div>
+{% endblock %}

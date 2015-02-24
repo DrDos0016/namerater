@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>{% block title %}{{title}} - Pokémon Name Rater{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="/assets/css/core.css">
+<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+<link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+
+<meta name="author" content="Dr. Dos">
+<meta name="description" content="Share and vote on Pokémon nicknames">
+<meta name="keywords" content="pokemon">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+{% block css %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+</head>
+
+<body>
+<div id="header">
+<ul id="navigation">
+    <a href="/"><li style="background-image:url('/assets/pokemon/black-white/1.png');">Browse</li></a>
+    <a href="/name"><li style="background-image:url('/assets/pokemon/black-white/25.png')">Name</li></a>
+    <a href="/search"><li style="background-image:url('/assets/pokemon/black-white/504.png')">Search</li></a>
+    <a href="/top/recent"><li style="background-image:url('/assets/pokemon/black-white/237.png')">Top</li></a>
+    <a href="/random"><li style="background-image:url('/assets/pokemon/black-white/132.png')">Random</li></a>
+    <a href="/help"><li style="background-image:url('/assets/pokemon/black-white/54.png')">Help</li></a>
+</ul>
+
+{% if not session.logged_in %}
+<ul id="user_info">
+        <a href="/login"><li style="background-image:url('/assets/pokemon/black-white/562.png')">Login</li></a>
+</ul>
+{% else %}
+<div id="user_info">
+<img class="fl" src="/assets/images/icons/{{session.icon}}.png">
+<a href="/profile/{{session.userkey}}/{{session.username|slugify}}">{{session.username}}</a>
+<a class="fr" href="/logout">Logout</a><br>
+<br>
+<img src="/assets/images/small_pokeball.png">x {{session.submissions}}/{{session.submission_limit}}<br>
+{% comment %}
+Names: <a href="">X</a>
+Captures: <a href="">X</a>
+Comments: <a href="">120</a>
+{% endcomment %}
+</div>
+{% endif %}
+<div style="clear:both"></div>
+</div>
+<div class="gas">AD</div>
+
+{% block pages-top %}{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block pages-bottom %}{% endblock %}
+
+<div class="gas">AD</div>
+
+<div id="footer">
+By <a href="mailto:doctordos@gmail.com">Dr. Dos</a><br>
+</div>
+</body>
+</html>

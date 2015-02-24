@@ -1,0 +1,316 @@
+{% extends "main.html" %}
+
+{% block css %}
+<style>
+#submissions
+{
+    text-align:center;
+}
+
+#settings
+{
+    text-align:center;
+}
+
+#settings .letters
+{
+    font-family:monospace;
+    letter-spacing:0.3em;
+    text-align:center;
+    margin:2px auto;
+    border-bottom:1px solid #6ABDCD;
+}
+
+#settings ul
+{
+    position:relative;
+}
+
+input[name=search]
+{
+    width:130px;
+}
+
+input[name=rating]
+{
+    text-align:center;width:40px
+}
+
+input.date
+{
+    width:66px;
+    margin-left:-1 px;
+}
+
+#pokemon_list, #data, #sprite_preview, #finally
+{
+    width:19%;
+    height:256px;
+    border:1px solid #412E7A;
+    background-color:#412E7A;
+    text-align:center;
+    border-radius:8px;
+}
+
+#pokemon_list ul
+{
+    height:146px;
+    overflow-y:scroll;
+    margin:0;
+    margin-right:8px;
+    padding:8px;
+    list-style-type:none;
+}
+
+#pokemon_list ul li
+{
+    cursor:pointer;
+    text-align:left;
+    padding-left:16px;
+    font-size:10pt;
+}
+
+#pokemon_list ul li:hover
+{
+    cursor:pointer;
+    background-color:#5E4B94;
+}
+
+#pokemon_list ul li.selected
+{
+    background-color:#AB9FCF;
+}
+
+#pokemon_list ul li.selected:hover
+{
+    background-color:#5E4B94;
+}
+
+.sprite_options
+{
+    width:150px;
+    margin:auto;
+}
+
+.sprite_options label
+{
+    display:inline-block;
+    *display:inline;
+    zoom:1;
+    text-align:left;
+    width:100%;
+}
+
+.sprite_options input[type=checkbox]
+{
+    width:auto;
+    float:right;
+}
+
+.sprite_options input[type=checkbox][disabled]
+{
+    visibility:hidden;
+}
+
+#sprite_preview
+{
+    width:39%;
+    height:256px;
+    border:1px solid #412E7A;
+}
+
+#sprite_list
+{
+    overflow-y:scroll;
+    height:222px;
+    margin-right:8px;
+}
+
+.sprite_choice
+{
+    border-radius:8px;
+    width:140px;
+    height:160px;
+    padding:4px;
+}
+
+.sprite_choice:hover
+{
+    cursor:pointer;
+    background-color:#5E4B94;
+}
+.sprite_choice.selected
+{
+    background-color:#AB9FCF;
+}
+
+.sprite_choice.selected:hover
+{
+    background-color:#5E4B94;
+}
+
+.submission
+{
+    height:160px;
+}
+
+div[name=team_name]
+{
+    visibility:hidden;
+}
+
+#clear_search
+{
+    position:relative;
+    top:3px;
+    cursor:pointer;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="/assets/scripts/jquery.scrollTo.min.js"></script>
+<script>
+number = 0;
+tileset = "x-y";
+form = "";
+name = "";
+keywords = "";
+var submit_data = {"submissions":[], "set_name":"", "keywords":""};
+
+sprites = [
+    {% for sprite in sprites %}
+        {"name":"{{sprite.name}}", "directory":"{{sprite.directory}}", "max_number":{{sprite.max_number}}},
+    {% endfor %}
+];
+
+var letter = "";
+
+$(document).ready(function (){
+    $("input[name=search]").keyup(function (e){
+        term = $(this).val().trim().toLowerCase();
+        len = term.length;
+        if (! term)
+        {
+            $("li[name=pokemon]").show();
+            return false;
+        }
+        
+        $("li[name=pokemon]").each(function (){
+            val = $(this).text().toLowerCase();
+            if (val.substr(0,len) != term)
+                $(this).hide();
+            else
+                $(this).show();
+        });
+    });
+    
+    $("#clear_search").click(function (){
+        $("input[name=search]").val("").trigger("keyup");
+    });
+        
+    $("a[name=letter]").click(function (){
+        letter = $(this).text();
+        $("input[name=search]").val("").trigger("keyup");
+        $("#pokemon_list ul").scrollTo($("li[name=pokemon][data-letter="+letter+"]:first"));
+    });
+    
+    $("li[name=pokemon]").click(function (){
+        if ($(this).hasClass("selected"))
+        {
+            $(this).removeClass("selected");
+            number = 0;
+            $("#sprite").attr("src", "/assets/pokemon/set/-1.png");
+            return;
+        }
+        $("li[name=pokemon].selected").removeClass("selected");
+        $(this).addClass("selected");
+        // Select pokemon
+        number = $(this).data("number");
+        $("#sprite").attr("src", "/assets/pokemon/x-y/"+number+".png");
+        
+    });
+
+    $("#submit").click(function (e){
+        var loc = "?";
+        
+        if (number)
+            loc += "species="+number+"&";
+        if ($("input[name=name]").val())
+            loc += "name="+$("input[name=name]").val()+"&";
+        if ($("input[name=date-start]").val())
+            loc += "start="+$("input[name=date-start]").val()+"&";
+        else
+            loc += "start=2015-01-01";
+        if ($("input[name=date-end]").val())
+            loc += "end="+$("input[name=date-end]").val()+"&";
+        else
+            loc += "end={{today}}";
+        if ($("input[name=rating]").val())
+            loc += "rating="+$("input[name=rating]").val()+"&";
+        else
+            loc += "rating=0";
+        if ($("input[name=keywords]").val())
+            loc += "keyword="+$("input[name=keywords]").val()+"&";
+        
+        loc += "sort="+$("select[name=sort]").val();
+        
+        window.location = "/"+loc;
+    });
+
+    $("input[name=search]").val("");
+});
+
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content">
+<h1>Search</h1>
+
+<div id="settings">
+    <div class="col" id="pokemon_list">
+    <h2>Pokémon</h2>
+    <input name="search" placeholder="Search" value=""> <img src="/assets/images/clear.png" alt="Clear" id="clear_search">
+    <div class="letters">
+    <a name="letter">A</a><a name="letter">B</a><a name="letter">C</a><a name="letter">D</a><a name="letter">E</a><a name="letter">F</a><a name="letter">G</a><a name="letter">H</a><a name="letter">I</a><a name="letter">J</a><a name="letter">K</a><a name="letter">L</a><a name="letter">M</a>
+    <br><a name="letter">N</a><a name="letter">O</a><a name="letter">P</a><a name="letter">Q</a><a name="letter">R</a><a name="letter">S</a><a name="letter">T</a><a name="letter">U</a><a name="letter">V</a><a name="letter">W</a><a name="letter">X</a><a name="letter">Y</a><a name="letter">Z</a>
+    </div>
+
+    <ul>
+    {% for poke in pokemon %}
+        <li name="pokemon" data-number="{{poke.1}}" data-letter="{{poke.0|slice:':1'}}">{{poke.0}}</li>
+    {% endfor %}
+    </ul>
+    </div>
+
+    <div class="col" id="data">
+        <h2>Query</h2>
+        <label>Nickname</label><br><input name="name" maxlength="12">
+        <br>
+        <label>Date Submitted</label><br>
+        <input class="date" name="date-start" maxlength="10" value="2015-01-01"> - <input class="date" name="date-end" maxlength="10" value="{{today}}">
+        <br>
+        <label>Minimum Captures</label><br>
+        <input name="rating" maxlength="10" value="0">
+        <br>
+        <label>Keyword</label><br>
+        <input name="keywords" value="" placeholder="Use commas for multiple."><br>
+        <label>Sort By</label><br>
+        <select name="sort">
+            <option value="date">Date Submitted</option>
+            <option value="captures">Captures</option>
+            <option value="name">Name</option>
+            <option value="species">Species</option>
+        </select>
+    </div>
+
+    <div class="col" id="finally">
+            <img class="sprite" src="/assets/pokemon/set/-1.png" id="sprite">
+            <input id="submit" type="submit" value="Run Search!"><br>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}

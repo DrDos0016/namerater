@@ -1,0 +1,44 @@
+/* Columns */
+.col
+{
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+    vertical-align:top;
+}
+/* End Columns */
+
+/* Alignment */
+.c
+{
+    text-align:center;
+}
+
+.r
+{
+    text-align:right;
+}
+
+.l
+{
+    text-align:left;
+}
+/* End Alignment */
+
+/* Float */
+.fl
+{
+    float:left;
+}
+.fr
+{
+    float:right;
+}
+/* End Float */
+
+/* Internet Explorer */
+img
+{
+    border:0;
+}
+/* End Internet Explorer */

@@ -1,0 +1,238 @@
+{% extends "main.html" %}
+
+{% block scripts %}
+<script src="/assets/scripts/vote.js"></script>
+
+<script>
+$(document).ready(function() {
+    $("#tabs .jsLink").click(function() {
+        show = $(this).text();
+        if (show == "Capture" || show == "Delete")
+            return false;
+        
+        $(".jsLink.sel").removeClass("sel");
+        $(this).addClass("sel");
+        $("#comments").hide();
+        $("#details").hide();
+        $("#report").hide();
+        $("#admin").hide();
+
+        $("#"+show.toLowerCase()).show();
+    });
+    
+    $('#comment_field').keyup(function () {
+        remaining = 500 - $(this).val().length
+        $('#remaining').html(remaining);
+        if (remaining <= 0)
+        {
+            $('#remaining').css('color', '#F00');
+        }
+        else
+            $('#remaining').css('color', '#FFF');
+    });
+    
+    $('#report_note').keyup(function () {
+        remaining = 500 - $(this).val().length
+        $('#report_remaining').html(remaining);
+        if (remaining <= 0)
+        {
+            $('#report_remaining').css('color', '#F00');
+        }
+        else
+            $('#report_remaining').css('color', '#FFF');
+    });
+    
+    $("#delete").click(function (){
+        del = confirm("Are you sure you wish to delete this submission? It cannot be undone.");
+        if (del)
+        {
+            ajax_url = '/ajax/delete/{{key}}';
+            $.ajax({
+                url: ajax_url,
+                success: function(data) {
+                    data = JSON.parse(data);
+                    
+                    if (data.result == "SUCCESS")
+                    {
+                        window.location = "/";
+                    }
+                    else
+                    {
+                        {% if session.admin %}
+                        console.log(data);
+                        alert("Failed. Check console for returned data.");
+                        {% else %}
+                        window.location = "/error/general";
+                        {% endif %}
+                    }
+                }
+            });
+        }
+    });
+    {% if session.admin %}
+    $("#admin-ban").click(function (){
+        reason = encodeURIComponent(prompt("They've been banned because..."));
+        details = encodeURIComponent(prompt("Details on their awful submission(s)..."));
+        ends = encodeURIComponent(prompt("When the ban ends (YYYY-MM-DD)..."));
+        ajax_url = '/ajax/ban/{{key}}?reason='+reason+'&details='+details+'&ends='+ends;
+        $.ajax({
+                url: ajax_url,
+                success: function(data) {
+                    data = JSON.parse(data);
+                    
+                    if (data.result == "SUCCESS")
+                    {
+                        alert("Success! They're now banned until " + ends);
+                    }
+                    else
+                    {
+                        console.log(data);
+                        alert("Failed. Check console for returned data.");
+                    }
+                }
+            });
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content">
+<div class="col view_area">
+    {% for submission in submissions %}
+        {% include "modules/submission.html" %}
+        {% if forloop.counter|divisibleby:"3" %}
+        <br>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="col info">
+    <h1>Submission Information</h1>
+    <div class="col captures">
+        <img src="/assets/images/pokeball.png"><span id="score-{{submissions.0.key}}">{{submissions.0.meta.score|default:0}}</span>
+    </div><br>
+    <div class="c" id="tabs">
+        <a name="vote" data-key="{{key}}" class="jsLink">Capture</a> &bull; 
+        <a class="jsLink sel">Comments</a> &bull; 
+        <a class="jsLink">Details</a> &bull; 
+        <a class="jsLink">Report</a>
+        {% if yours and not session.admin %} &bull; <a class="jsLink" id="delete">Delete</a>{% endif %}
+        {% if session.admin %} &bull; <a class="jsLink">ADMIN</a> {% endif %}
+    </div>
+    
+    <div id="comments">
+        {% if session.logged_in %}
+        <form method="POST" action="/comment/submit">
+        {% csrf_token %}
+        <input type="hidden" name="key" value="{{submissions.0.key}}">
+        <div class="container"><textarea id="comment_field" name="comment" maxlength="500"></textarea><br>
+            <div class="col left">(<span id="remaining">500</span>)</div><input type="submit" value="Post Comment">
+        </div>
+        </form>
+        {% else %}
+        <div class="c">You must be logged in to post comments!</div>
+        {% endif %}
+        
+        <div id="comment_list">
+        {% for comment in comments %}
+        <div class="break"></div>
+        <a href="/profile/{{comment.user.key}}/{{comment.user.name|slugify}}">{{comment.user.name}}</a> - {{comment.timestamp}}<br>
+        <div class="fl icon"><img src="/assets/images/icons/{{comment.user.icon}}.png"></div><p>{{comment.comment}}</p>
+        
+        {% empty %}
+        <div class="break"></div>
+        No comments have been made yet
+        {% endfor %}
+        </div>
+    </div>
+    
+    <div id="details">
+        <table>
+            {% if set_head %}
+            <tr>
+                <th>Team Name:</th>
+                <td>{{set_head.name}}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <th>Author:</th>
+                <td>{% if submissions.0.meta.user.name %}<a href="/profile/{{submissions.0.meta.user.key}}/{{submissions.0.meta.user.name|slugify}}">{{submissions.0.meta.user.name}}</a>{% else %}Anonymous{% endif %}{% if session.admin %} - ({{submissions.0.meta.ip}}){% endif %}</td>
+            </tr>
+            <tr>
+                <th>Date:</th>
+                <td>{{submissions.0.meta.timestamp}}</td>
+            </tr>
+            <tr>
+                <th>Keywords:</th>
+                <td>{{submissions.0.keywords|default:"None"}}</td>
+            </tr>
+            
+            <tr><td colspan="2">&nbsp;</td></tr>
+            
+            {% for submission in submissions %}
+            <tr>
+                <th>Name:</th>
+                <td>{{submission.name}}</td>
+            </tr>
+            <tr>
+                <th>Species:</th>
+                <td>#{{submission.species|stringformat:"03d"}} - {{submission.species_name}}</td>
+            </tr>
+            <tr>
+                <th>Sprite:</th>
+                <td>{{submission.tileset}}</td>
+            </tr>
+            <tr>
+                <th>Back:</th>
+                <td>{{submission.back|yesno|title}}</td>
+            </tr>
+            <tr>
+                <th>Shiny:</th>
+                <td>{{submission.shiny|yesno|title}}</td>
+            </tr>
+            <tr>
+                <th>Female:</th>
+                <td>{{submission.female|yesno|title}}</td>
+            </tr>
+            <tr>
+                <th>Form:</th>
+                <td>{{submission.form|title|default:"Standard"}}</td>
+            </tr>
+            {% if not forloop.last %}
+            <tr><td colspan="2">&nbsp;</td></tr>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div id="report">
+        <form method="POST" action="/report/submit">
+        {% csrf_token %}
+        <input type="hidden" name="key" value="{{submissions.0.key}}">
+        <div class="container">
+            This submission... <select name="type">
+                <option value="dupe">is a duplicate</option>
+                <option value="spam">is spam</option>
+                <option value="inappropriate">is inappropriate</option>
+                <option value="comment">has bad comments</option>
+            <textarea id="report_note" name="comment" maxlength="500"></textarea><br>
+            <div class="col left">(<span id="report_remaining">500</span>)</div><input name="report" type="submit" value="Report Submission">
+        </div>
+        
+        <div class="break"></div>
+        
+        Please be sure that the submission you are reporting is in violation of the <a href="/help#guidelines">posting guidelines</a>!<br><br>
+        Include any information that might be relevant to the report, such as a link to the original submission for a duplicate.
+        </form>
+    </div>
+    
+    {% if session.admin %}
+    <div id="admin" class="c">
+        <a class="jsLink" id="delete">DELETE</a> &bull;
+        <a class="jsLink" id="admin-ban">BAN</a> &bull;
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

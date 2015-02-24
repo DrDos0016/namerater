@@ -1,0 +1,163 @@
+{% extends "main.html" %}
+
+{% block css %}
+<style>
+#details, #icon_edit
+{
+    display:block;
+    height:125px;
+}
+
+#icon_edit
+{
+    display:none;
+}
+
+#comments
+{
+    height:256px;
+    overflow-y:auto;
+}
+
+#comments table
+{
+    width:100%;
+}
+
+#comments td:nth-child(odd)
+{
+    width:75%;
+}
+
+#comments td:nth-child(even)
+{
+    width:25%;
+    text-align:right;
+}
+
+.icon
+{
+    margin-right:4px;
+}
+
+.dashed
+{
+    border:1px dashed #FFF;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="/assets/scripts/vote.js"></script>
+
+<script>
+$(document).ready(function() {
+    $("#icon").click(function (){
+        $("#details").hide();
+        $("#icon_edit").show();
+    });
+    
+    $("select[name=icon]").change(function (){
+        $("#icon").attr("src", "/assets/images/icons/"+$(this).val()+".png");
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content">
+<div class="col view_area">
+    {% for submission in submissions %}
+        {% include "modules/submission.html" %}
+        {% if forloop.counter|divisibleby:"3" %}
+        <br>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="col info">
+    <h1>User Information</h1>
+    {% if yours %}<img src="/assets/images/icons/{{user.icon}}.png" class="fr jsLink icon dashed" id="icon"></a>
+    {% else %}<img src="/assets/images/icons/{{user.icon}}.png" class="fr icon">
+    {% endif %}<br>
+    
+    <div id="details">
+        <br>
+        <table>
+            <tr>
+                <th>User:</th>
+                <td>{{user.name}}</td>
+            </tr>
+            <tr>
+                <th>Joined:</th>
+                <td>{{user.joined}}</td>
+            </tr>
+            <tr>
+                <th>Submissions:</th>
+                <td>{{user.submissions}} <a href="/user?key={{user.key}}">View All</a></td>
+            </tr>
+            <tr>
+                <th>Captures:</th>
+                <td></td>
+            </tr>
+            {% if session.admin %}
+            <tr>
+                <th>Email:</th>
+                <td>{{user.email}}</td>
+            </tr>
+            <tr>
+                <th>Active:</th>
+                <td>{{user.active|yesno|title}}</td>
+            </tr>
+            <tr>
+                <th>Logins:</th>
+                <td>{{user.logins}} ({{user.last_login}})</td>
+            </tr>
+            <tr>
+                <th>Limits:</th>
+                <td>{{user.submissions}} / {{user.submission_limit}}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+    
+    <div id="icon_edit">
+    {% if yours %}
+        <form method="POST">
+        {% csrf_token %}
+        <select name="icon">
+            <option value="0">&mdash; Egg &mdash;</option>
+        {% for poke in all %}
+            <option value="{{poke.1}}"{% if poke.1 == user.icon %} selected{% endif %}>{{poke.0}}</option>
+        {% endfor %}
+        </select>
+        
+        <input type="submit" value="Change Icon">
+        </form>
+    {% endif %}
+    </div>
+    
+    {% if yours or session.admin %}
+    <h1>Latest Comments</h1>
+    <div id="comments">
+        
+        {% if comments %}
+        <table>
+            {% for comment in comments %}
+            <tr>
+                <td><a href="/view/{{comment.key}}"><span>{{comment.name|default:"???"}}</span></a></td>
+                <td>{{comment.timestamp|date:"M d, Y"}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        No comments to display.
+        {% endif %}
+    </div>
+    <div id="comment_nav">
+    <div class="fl"><a href="/profile/{{user.key}}/{{user.name|slugify}}?cpage={{prev}}">Newer Comments</a></div>
+    <div class="fr"><a href="/profile/{{user.key}}/{{user.name|slugify}}?cpage={{next}}">Older Comments</a>&nbsp;</div>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
